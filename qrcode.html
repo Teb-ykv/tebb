@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Birthday QR Code</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --gold: #f5c842;
+    --rose: #e8567a;
+    --deep: #1a0a2e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--deep);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    overflow: hidden;
+  }
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .star { position: absolute; border-radius: 50%; background: white; animation: twinkle var(--dur) ease-in-out infinite; opacity: 0; }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; } 50% { opacity: 1; }
+  }
+  .wrapper {
+    position: relative; z-index: 10; text-align: center;
+    animation: fadeIn 1s ease both;
+  }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+  .label {
+    font-size: 0.8rem; letter-spacing: 0.4em; text-transform: uppercase;
+    color: var(--rose); font-weight: 600; margin-bottom: 10px;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #fdf6ec; font-size: 2.2rem;
+    margin-bottom: 6px;
+  }
+  h1 em { color: var(--gold); font-style: italic; }
+  .tagline { color: #c9a0b0; font-size: 1rem; font-weight: 300; margin-bottom: 32px; }
+
+  .qr-frame {
+    background: white;
+    padding: 18px;
+    border-radius: 20px;
+    display: inline-block;
+    box-shadow: 0 0 0 2px var(--gold), 0 20px 60px rgba(0,0,0,0.5), 0 0 80px rgba(245,200,66,0.15);
+    position: relative;
+    animation: pulse 3s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 2px var(--gold), 0 20px 60px rgba(0,0,0,0.5), 0 0 80px rgba(245,200,66,0.15); }
+    50% { box-shadow: 0 0 0 2px var(--gold), 0 20px 60px rgba(0,0,0,0.5), 0 0 120px rgba(245,200,66,0.35); }
+  }
+  /* Corner decorations */
+  .corner { position: absolute; width: 18px; height: 18px; border-color: var(--gold); border-style: solid; }
+  .corner.tl { top: 6px; left: 6px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+  .corner.tr { top: 6px; right: 6px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+  .corner.bl { bottom: 6px; left: 6px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+  .corner.br { bottom: 6px; right: 6px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+  #qrcode canvas, #qrcode img { border-radius: 8px; display: block; }
+
+  .hint {
+    margin-top: 26px; color: #9a7a8a; font-size: 0.95rem; font-weight: 300;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .hint::before, .hint::after { content: '—'; opacity: 0.4; }
+  .emojis { margin-top: 18px; font-size: 1.4rem; letter-spacing: 0.2em; opacity: 0.8; }
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="wrapper">
+  <p class="label">Scan to open</p>
+  <h1>A Birthday <em>Surprise</em></h1>
+  <p class="tagline">Tap or scan to reveal your special message 🎂</p>
+  <div class="qr-frame">
+    <span class="corner tl"></span>
+    <span class="corner tr"></span>
+    <span class="corner bl"></span>
+    <span class="corner br"></span>
+    <div id="qrcode"></div>
+  </div>
+  <p class="hint">Point your camera here</p>
+  <div class="emojis">🎈 🎉 🎁 🌟 🎊</div>
+</div>
+<script>
+  // Stars
+  const s = document.getElementById('stars');
+  for (let i = 0; i < 100; i++) {
+    const el = document.createElement('div');
+    el.className = 'star';
+    const sz = Math.random() * 2.5 + 1;
+    el.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${2+Math.random()*4}s;animation-delay:${Math.random()*5}s;`;
+    s.appendChild(el);
+  }
+
+  // Generate QR code pointing to the birthday greeting
+  // Using a data URL approach: encode the birthday HTML as a URL
+  // We'll use a redirect to a public QR code service that opens the local file
+  // Since this is a local HTML file, we'll use a placeholder URL that can be customized
+  
+  // The URL to encode - this is the birthday.html file's likely served path
+  // When both files are in the same directory, a relative link works
+  const birthdayURL = window.location.href.replace('qrcode.html', 'birthday.html');
+  
+  new QRCode(document.getElementById('qrcode'), {
+    text: birthdayURL,
+    width: 220,
+    height: 220,
+    colorDark: '#1a0a2e',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+</script>
+</body>
+</html>
